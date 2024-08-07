@@ -20,12 +20,11 @@ villas = [
 all_properties = apartments + villas
 
 # Create a dictionary to track usage of each property
-property_usage = {prop: {'16:9 Video': 0, 'Photo Post': 0, 'Reel': 0, 'Story': 0} for prop in all_properties}
+property_usage = {prop: {'Video': 0, 'Photo': 0, 'Story': 0} for prop in all_properties}
 
 # Create deques for each post type
 video_deque = deque(random.sample(all_properties, len(all_properties)))
 photo_deque = deque(random.sample(all_properties, len(all_properties)))
-reel_deque = deque(random.sample(all_properties, len(all_properties)))
 story_deque = deque(random.sample(all_properties, len(all_properties)))
 
 def get_next_property(deque_type, post_type):
@@ -44,24 +43,38 @@ def get_next_property(deque_type, post_type):
 def generate_daily_schedule(day):
     schedule = {
         "Day": day,
-        "16:9 Video": get_next_property(video_deque, '16:9 Video'),
-        "Photo Post": get_next_property(photo_deque, 'Photo Post'),
-        "Reel": get_next_property(reel_deque, 'Reel'),
-        "Story": get_next_property(story_deque, 'Story')
+        "Video": [get_next_property(video_deque, 'Video') for _ in range(2)],
+        "Photo": [get_next_property(photo_deque, 'Photo') for _ in range(2)],
+        "Story": [get_next_property(story_deque, 'Story') for _ in range(2)]
     }
     return schedule
 
-# Generate schedule for 30 days
-for day in range(1, 31):
-    daily_schedule = generate_daily_schedule(day)
-    print(f"Day {daily_schedule['Day']}:")
-    print(f"  16:9 Video: {daily_schedule['16:9 Video']}")
-    print(f"  Photo Post: {daily_schedule['Photo Post']}")
-    print(f"  Reel: {daily_schedule['Reel']}")
-    print(f"  Story: {daily_schedule['Story']}")
-    print()
+# Open a file to write the schedule
+with open('social_media_schedule.txt', 'w') as file:
+    # Generate schedule for 30 days
+    for day in range(1, 31):
+        daily_schedule = generate_daily_schedule(day)
+        
+        # Write to console
+        print(f"Day {daily_schedule['Day']}:")
+        print(f"  Video: {daily_schedule['Video']}")
+        print(f"  Photo: {daily_schedule['Photo']}")
+        print(f"  Story: {daily_schedule['Story']}")
+        print()
+        
+        # Write to file
+        file.write(f"Day {daily_schedule['Day']}:\n")
+        file.write(f"  Video: {daily_schedule['Video']}\n")
+        file.write(f"  Photo: {daily_schedule['Photo']}\n")
+        file.write(f"  Story: {daily_schedule['Story']}\n")
+        file.write("\n")
 
-# Print usage statistics
-print("Property Usage Statistics:")
-for prop in all_properties:
-    print(f"{prop}: {property_usage[prop]}")
+    # Write usage statistics to both console and file
+    print("Property Usage Statistics:")
+    file.write("Property Usage Statistics:\n")
+    for prop in all_properties:
+        stats = f"{prop}: {property_usage[prop]}"
+        print(stats)
+        file.write(stats + "\n")
+
+print("Schedule has been saved to 'social_media_schedule.txt'")
